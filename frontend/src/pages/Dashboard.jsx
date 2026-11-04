@@ -1,228 +1,285 @@
-import React, { useState, useEffect } from 'react';
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Award,
   Clock,
+  Award,
   BookOpen,
   Calendar,
+  ArrowRight,
   CheckCircle2,
   TrendingUp,
-  Target,
-  Flame,
-  ArrowRight
+  BrainCircuit,
+  Play
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
-  const [user, setUser] = useState({
-    name: "Student Aspirant",
-    target_exam: "UPSC Civil Services (CSE)",
-    education: "B.Tech Computer Science",
-    study_hours_per_day: 6,
-    streak_days: 14
-  });
+  const { user } = useAuth();
+  const userName = user?.name || "Aspirant Rahul";
+  const userRole = user?.role || "student";
 
-  useEffect(() => {
-    const stored = localStorage.getItem('gov_user');
-    if (stored) {
-      try {
-        const u = JSON.parse(stored);
-        setUser((prev) => ({ ...prev, ...u }));
-      } catch (e) {}
+  const enrolledCourses = [
+    {
+      id: "upsc",
+      title: "UPSC Civil Services (Prelims + Mains)",
+      progress: 68,
+      lastAccessed: "Indian Polity: Fundamental Rights",
+      category: "Civil Services"
+    },
+    {
+      id: "ssc",
+      title: "SSC CGL (Tier 1 Sprint)",
+      progress: 45,
+      lastAccessed: "Quantitative Aptitude: Number Systems",
+      category: "Staff Selection"
     }
-  }, []);
-
-  const progressData = [
-    { name: 'Mock 1', score: 48, cutoff: 60 },
-    { name: 'Mock 2', score: 55, cutoff: 60 },
-    { name: 'Mock 3', score: 62, cutoff: 60 },
-    { name: 'Mock 4', score: 71, cutoff: 60 },
-    { name: 'Mock 5', score: 69, cutoff: 60 },
-    { name: 'Mock 6', score: 78, cutoff: 60 },
-    { name: 'Mock 7', score: 85, cutoff: 60 },
   ];
 
-  const subjectData = [
-    { subject: 'Polity', score: 82 },
-    { subject: 'History', score: 74 },
-    { subject: 'Aptitude', score: 88 },
-    { subject: 'Reasoning', score: 91 },
-    { subject: 'Current Affairs', score: 68 },
-    { subject: 'Science/Tech', score: 84 },
-  ];
-
-  const timeAllocation = [
-    { name: 'General Studies', value: 45, color: '#0ea5e9' },
-    { name: 'Aptitude / CSAT', value: 25, color: '#3b82f6' },
-    { name: 'Current Affairs', value: 15, color: '#10b981' },
-    { name: 'DSA / Technical', value: 15, color: '#a855f7' },
+  const recentTests = [
+    {
+      title: "UPSC GS Paper 1 All-India Mock 04",
+      score: "128 / 200",
+      percentile: "94.2%",
+      date: "Nov 02, 2026",
+      status: "Qualified"
+    },
+    {
+      title: "SSC CGL Quantitative Speed Drill 02",
+      score: "44 / 50",
+      percentile: "91.8%",
+      date: "Oct 29, 2026",
+      status: "Qualified"
+    },
+    {
+      title: "Banking Awareness Sectional 01",
+      score: "32 / 40",
+      percentile: "88.0%",
+      date: "Oct 24, 2026",
+      status: "Needs Revision"
+    }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* Top Welcome Banner */}
-      <div className="bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/60 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-        <div>
-          <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">Candidate Portal</span>
-          <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-            Welcome back, {user.name}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1">
-            Primary Target: <strong className="text-cyan-400">{user.target_exam}</strong> • Active Study Streak: <strong className="text-amber-400">{user.streak_days || 14} Days</strong>
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/tests"
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 text-white font-bold text-xs shadow-md shadow-blue-600/30"
-          >
-            Take Scheduled Mock
-          </Link>
-          <Link
-            to="/dsa"
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700"
-          >
-            Review C++ DSA
-          </Link>
-        </div>
-      </div>
-
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-md">
-          <span className="text-xs text-slate-400 flex items-center gap-1.5 font-semibold">
-            <Award className="w-4 h-4 text-cyan-400" /> Average Mock Score
-          </span>
-          <p className="text-2xl font-black text-white mt-2">76.4%</p>
-          <span className="text-[10px] text-emerald-400 font-mono">+12% vs last month</span>
-        </div>
-
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-md">
-          <span className="text-xs text-slate-400 flex items-center gap-1.5 font-semibold">
-            <Clock className="w-4 h-4 text-blue-400" /> Daily Target Hours
-          </span>
-          <p className="text-2xl font-black text-white mt-2">{user.study_hours_per_day || 6} hrs</p>
-          <span className="text-[10px] text-slate-400 font-mono">Consistently Maintained</span>
-        </div>
-
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-md">
-          <span className="text-xs text-slate-400 flex items-center gap-1.5 font-semibold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Tests Completed
-          </span>
-          <p className="text-2xl font-black text-white mt-2">18</p>
-          <span className="text-[10px] text-cyan-400 font-mono">8 Full-Length + 10 Topic</span>
-        </div>
-
-        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-md">
-          <span className="text-xs text-slate-400 flex items-center gap-1.5 font-semibold">
-            <Flame className="w-4 h-4 text-amber-400" /> Prelims Countdown
-          </span>
-          <p className="text-2xl font-black text-white mt-2">142 Days</p>
-          <span className="text-[10px] text-amber-400 font-mono">Scheduled 2026 Cycle</span>
-        </div>
-      </div>
-
-      {/* Recharts Analytics Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Mock Test Score Progression (8 cols) */}
-        <div className="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" /> Mock Test Score Trajectory (Recharts LineChart)
-            </h3>
-            <span className="text-xs font-mono text-slate-400">Baseline Cutoff: 60%</span>
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Welcome Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-800 mb-8 gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-black text-white">
+                Welcome back, {userName}!
+              </h1>
+              <span className="px-3 py-1 rounded-full bg-blue-500/20 text-cyan-300 text-xs font-bold uppercase tracking-wider border border-blue-500/30">
+                {userRole} Mode
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 mt-1">
+              Target: <strong>Civil Services (UPSC) 2026</strong> • Your AI study plan is active.
+            </p>
           </div>
 
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={progressData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="name" stroke="#64748b" tick={{ fontSize: 11 }} />
-                <YAxis stroke="#64748b" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#090d16', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
-                />
-                <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
-                <Line type="monotone" dataKey="score" name="Your Score" stroke="#0ea5e9" strokeWidth={2.5} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="cutoff" name="Cutoff Threshold" stroke="#f59e0b" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/guidance/tests"
+              className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all"
+            >
+              <Play className="w-3.5 h-3.5" /> Take Mock Test
+            </Link>
+            <Link
+              to="/prediction"
+              className="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-slate-700 transition-colors"
+            >
+              Check Probability
+            </Link>
           </div>
         </div>
 
-        {/* Study Time Allocation PieChart (4 cols) */}
-        <div className="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <h3 className="text-sm font-bold text-white pb-3 border-b border-slate-800">
-            Weekly Study Allocation (Recharts)
-          </h3>
-          <div className="h-64 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={timeAllocation}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={75}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {timeAllocation.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#090d16', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+        {/* 4 Metric Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Days to Exam
+              </span>
+              <h3 className="text-3xl font-black text-white">114 Days</h3>
+              <p className="text-[11px] text-cyan-400 mt-1">UPSC Prelims Countdown</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-cyan-400 flex items-center justify-center">
+              <Calendar className="w-6 h-6" />
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
-            {timeAllocation.map((item, i) => (
-              <div key={i} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                <span>{item.name}: {item.value}%</span>
+
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Study Time Logged
+              </span>
+              <h3 className="text-3xl font-black text-white">5.5 hrs</h3>
+              <p className="text-[11px] text-emerald-400 mt-1">Goal: 6.0 hrs / day (92%)</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+              <Clock className="w-6 h-6" />
+            </div>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Mock Test Average
+              </span>
+              <h3 className="text-3xl font-black text-white">76.4%</h3>
+              <p className="text-[11px] text-purple-400 mt-1">Rank Percentile: Top 6%</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+              <Award className="w-6 h-6" />
+            </div>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                Active Courses
+              </span>
+              <h3 className="text-3xl font-black text-white">2 Enrolled</h3>
+              <p className="text-[11px] text-amber-400 mt-1">18 Modules Complete</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+              <BookOpen className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        {/* Main 2 Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Enrolled Courses Progress */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-blue-400" />
+                  Your Ongoing Courses
+                </h3>
+                <Link to="/courses" className="text-xs font-bold text-cyan-400 hover:text-cyan-300">
+                  Explore Catalog →
+                </Link>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Subject Accuracy Mastery BarChart (12 cols) */}
-        <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-sm font-bold text-white">
-              Subject Accuracy & Mastery Breakdown (%)
-            </h3>
-            <span className="text-xs font-mono text-cyan-400">Target Benchmark: 75%+</span>
+              <div className="space-y-5">
+                {enrolledCourses.map((c) => (
+                  <div
+                    key={c.id}
+                    className="p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">
+                          {c.category}
+                        </span>
+                        <h4 className="font-bold text-base text-white">{c.title}</h4>
+                      </div>
+                      <Link
+                        to={`/courses/${c.id}`}
+                        className="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
+                      >
+                        Resume <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>Course Completion: {c.progress}%</span>
+                        <span className="text-slate-400 truncate max-w-[200px]">Last: {c.lastAccessed}</span>
+                      </div>
+                      <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
+                          style={{ width: `${c.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Mock Test History */}
+            <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-xl">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-yellow-400" />
+                Recent Mock Test Results
+              </h3>
+
+              <div className="space-y-3">
+                {recentTests.map((t, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-4"
+                  >
+                    <div>
+                      <h4 className="font-bold text-sm text-white">{t.title}</h4>
+                      <p className="text-xs text-slate-400">{t.date} • Percentile: {t.percentile}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-base font-black text-cyan-300 block">{t.score}</span>
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                        {t.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={subjectData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="subject" stroke="#64748b" tick={{ fontSize: 11 }} />
-                <YAxis stroke="#64748b" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#090d16', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
-                />
-                <Bar dataKey="score" name="Mastery Accuracy" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* Quick AI Advisor & Actions */}
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-blue-950/70 via-purple-950/50 to-slate-900 border border-blue-500/30 p-6 rounded-3xl shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                  <BrainCircuit className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-sm">AI Study Recommendation</h4>
+                  <span className="text-[10px] text-cyan-300 font-bold uppercase">Today's Focus</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed mb-6">
+                Based on your last mock test, you scored 85% in Indian Polity but dropped marks in Climatology (Geography).
+                Spend <strong>45 minutes</strong> reviewing Pressure Belts and Monsoon Wind systems.
+              </p>
+
+              <Link
+                to="/guidance/mentor"
+                className="w-full py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-md"
+              >
+                Discuss with AI Mentor <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-3">
+              <h4 className="font-bold text-white text-sm">Quick Jump Links</h4>
+              <Link
+                to="/employment"
+                className="block p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white"
+              >
+                💼 Explore Active Government Vacancies
+              </Link>
+              <Link
+                to="/guidance/materials"
+                className="block p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white"
+              >
+                📚 Smart Study Notes & NCERTs
+              </Link>
+              <Link
+                to="/prediction"
+                className="block p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white"
+              >
+                🧠 Recalculate Exam Probability
+              </Link>
+            </div>
           </div>
         </div>
       </div>

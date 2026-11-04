@@ -2,9 +2,10 @@
   "name": "government-1",
   "version": "2.0.0",
   "private": true,
-  "description": "Government-1 Unified Prep, Placement, C++ DSA & Machine Learning Platform",
+  "description": "ExamGuru AI (GovGuide AI) - Unified Government Exam Guidance & Employment Platform",
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
+    "vercel-build": "cd frontend && npm install && npm run build",
     "dev:backend": "uvicorn backend.app.main:app --reload --port 8000",
     "dev:frontend": "npm run dev --prefix frontend",
     "seed": "python -m backend.seed_data",

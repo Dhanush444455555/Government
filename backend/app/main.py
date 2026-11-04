@@ -8,12 +8,13 @@ import backend.app.models # ensures models registered with Base
 from backend.app.routers import (
     auth,
     exams,
+    courses,
     mock_tests,
     jobs,
+    predict,
+    chat,
     ml_analytics,
-    dsa,
     interview,
-    core_cs,
     upsc,
     resources
 )
@@ -22,9 +23,9 @@ from backend.app.routers import (
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
+    title="ExamGuru AI - Unified Platform for Government Exam Guidance & Employment Support",
     version=settings.VERSION,
-    description="Backend API for Government-1: Unified Exam Guidance, DSA Placement Preparation & Conventional ML Analytics."
+    description="Backend API for ExamGuru AI: Government Exam Guidance, Employment Support, Scikit-learn ML Predictions & MySQL Database."
 )
 
 # Enable CORS for Vite frontend
@@ -39,12 +40,13 @@ app.add_middleware(
 # Mount Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(exams.router, prefix=settings.API_V1_STR)
+app.include_router(courses.router, prefix=settings.API_V1_STR)
 app.include_router(mock_tests.router, prefix=settings.API_V1_STR)
 app.include_router(jobs.router, prefix=settings.API_V1_STR)
+app.include_router(predict.router, prefix=settings.API_V1_STR)
+app.include_router(chat.router, prefix=settings.API_V1_STR)
 app.include_router(ml_analytics.router, prefix=settings.API_V1_STR)
-app.include_router(dsa.router, prefix=settings.API_V1_STR)
 app.include_router(interview.router, prefix=settings.API_V1_STR)
-app.include_router(core_cs.router, prefix=settings.API_V1_STR)
 app.include_router(upsc.router, prefix=settings.API_V1_STR)
 app.include_router(resources.router, prefix=settings.API_V1_STR)
 
@@ -52,11 +54,16 @@ app.include_router(resources.router, prefix=settings.API_V1_STR)
 def root():
     return {
         "status": "online",
-        "app": settings.PROJECT_NAME,
+        "app": "ExamGuru AI - Unified Platform for Government Exam Guidance & Employment Support",
         "version": settings.VERSION,
         "stack": "FastAPI + SQLAlchemy + MySQL + Scikit-Learn + Vite React"
     }
 
 @app.get("/api/health")
-def health():
-    return {"status": "healthy", "database": str(engine.url)}
+def health_check():
+    return {
+        "status": "healthy",
+        "database": "MySQL / SQLAlchemy Active",
+        "machine_learning": "Scikit-Learn Ready",
+        "auth": "JWT Active"
+    }

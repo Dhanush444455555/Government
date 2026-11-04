@@ -1,142 +1,157 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
-import { GraduationCap, LogIn, UserPlus, Lock, Mail, User, BookOpen } from 'lucide-react';
+import { BrainCircuit, Lock, Mail, User, Sparkles, GraduationCap, School } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, loginWithCredentials } = useAuth();
+  const [role, setRole] = useState('student');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState('student@government.in');
-  const [password, setPassword] = useState('password123');
-  const [name, setName] = useState('Aspirant Candidate');
-  const [targetExam, setTargetExam] = useState('Civil Services (UPSC)');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+
+  const handleDemoLogin = (selectedRole) => {
+    login(selectedRole);
+    navigate('/courses');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
     try {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const payload = isRegister
-        ? { email, password, name, target_exam: targetExam }
-        : { email, password };
-
-      const res = await api.post(endpoint, payload);
-      localStorage.setItem('gov_token', res.data.access_token);
-      localStorage.setItem('gov_user', JSON.stringify(res.data.user));
-      navigate('/dashboard');
+      await loginWithCredentials(email || `${role}@government.in`, password || "password123", role);
+      navigate('/courses');
     } catch (err) {
-      setError(err.response?.data?.detail || "Authentication failed. Please verify credentials.");
+      navigate('/courses');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
-            <GraduationCap className="w-7 h-7 text-white" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-md w-full relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 text-white shadow-xl shadow-blue-500/30 mb-3">
+            <BrainCircuit className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-black text-white">
-            {isRegister ? 'Create Aspirant Account' : 'Aspirant Student Login'}
+          <h2 className="text-3xl font-black text-white tracking-tight">
+            GovGuide AI Portal
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Access customized government syllabi, C++ coding assessments, and ML insights.
+            ExamGuru AI • Unified Government Guidance & Employment Ecosystem
           </p>
         </div>
 
-        {error && (
-          <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-xs text-rose-300 text-center">
-            {error}
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+          {/* Role Selection Tabs */}
+          <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-2xl mb-6 border border-slate-800">
+            <button
+              type="button"
+              onClick={() => setRole('student')}
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                role === 'student'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              Student Aspirant
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole('teacher')}
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                role === 'teacher'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <School className="w-4 h-4" />
+              Teacher / Faculty
+            </button>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegister && (
-            <>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Candidate Name"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
+          {/* One-Click Quick Demo Login */}
+          <div className="mb-6 p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-center">
+            <p className="text-xs font-bold text-slate-300 mb-2 flex items-center justify-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+              One-Click Instant Access
+            </p>
+            <button
+              onClick={() => handleDemoLogin(role)}
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-blue-500/20 transition-all"
+            >
+              Enter as Demo {role === 'teacher' ? 'Faculty' : 'Student'}
+            </button>
+          </div>
+
+          <div className="relative flex items-center justify-center mb-6">
+            <div className="border-t border-slate-800 w-full" />
+            <span className="bg-slate-900 px-3 text-[11px] uppercase tracking-wider text-slate-400 font-bold shrink-0">
+              Or Use Credentials
+            </span>
+            <div className="border-t border-slate-800 w-full" />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-3 text-slate-400 w-4 h-4" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={role === 'teacher' ? "teacher@government.in" : "student@government.in"}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 placeholder-slate-400"
+                />
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Target Government Exam</label>
-                <div className="relative">
-                  <BookOpen className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={targetExam}
-                    onChange={(e) => setTargetExam(e.target.value)}
-                    placeholder="e.g. UPSC CSE, IBPS PO, SSC CGL"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3 text-slate-400 w-4 h-4" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 placeholder-slate-400"
+                />
               </div>
-            </>
-          )}
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="aspirant@government.in"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-              />
             </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition-colors mt-2"
+            >
+              {loading ? "Authenticating..." : isRegister ? "Create Account" : "Sign In to GovGuide AI"}
+            </button>
+          </form>
+
+          <div className="text-center mt-5">
+            <button
+              onClick={() => setIsRegister(!isRegister)}
+              className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
+            >
+              {isRegister ? "Already registered? Sign in" : "Need an aspirant account? Register here"}
+            </button>
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-transform hover:scale-[1.02] flex items-center justify-center gap-2"
-          >
-            {isRegister ? <UserPlus className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
-            {loading ? 'Authenticating...' : isRegister ? 'Register Aspirant' : 'Sign In to Portal'}
-          </button>
-        </form>
-
-        <div className="text-center pt-2 border-t border-slate-800/80">
-          <button
-            type="button"
-            onClick={() => { setIsRegister(!isRegister); setError(null); }}
-            className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
-          >
-            {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register Here"}
-          </button>
         </div>
       </div>
     </div>
