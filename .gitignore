@@ -57,4 +57,4 @@ __pycache__/
 
 # frontend build
 frontend/dist/
-dist/
+dist/.vercel_python_packages/
